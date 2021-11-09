@@ -23,6 +23,56 @@ class Ui_MainWindow(object):
         self.GraphWidget.setMaximumSize(QtCore.QSize(500, 300))
         self.GraphWidget.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
         self.GraphWidget.setObjectName("GraphWidget")
+
+        self.DeltaWidget = QtWidgets.QWidget(self.centralwidget)
+        self.DeltaWidget.setGeometry(QtCore.QRect(370, 400, 350, 100))
+        self.DeltaWidget.setMinimumSize(QtCore.QSize(350, 100))
+        self.DeltaWidget.setMaximumSize(QtCore.QSize(350, 100))
+        self.DeltaWidget.setCursor(QtGui.QCursor(QtCore.Qt.ArrowCursor))
+        self.DeltaWidget.setObjectName("DeltaWidget")
+
+        self.label_delta_X = QtWidgets.QLabel(self.DeltaWidget)
+        self.label_delta_X.setGeometry(QtCore.QRect(0, 0, 40, 25))
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.label_delta_X.setFont(font)
+        self.label_delta_X.setObjectName("label_delta_X")
+
+        self.delta_X_LCD = QtWidgets.QLCDNumber(self.DeltaWidget)
+        self.delta_X_LCD.setGeometry(QtCore.QRect(50, 0, 100, 25))
+        self.delta_X_LCD.setFrameShape(QtWidgets.QFrame.Box)
+        self.delta_X_LCD.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.delta_X_LCD.setDigitCount(10)
+        self.delta_X_LCD.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.delta_X_LCD.setObjectName("delta_X_LCD")
+
+        self.label_delta_Y = QtWidgets.QLabel(self.DeltaWidget)
+        self.label_delta_Y.setGeometry(QtCore.QRect(200, 0, 40, 25))
+        font = QtGui.QFont()
+        font.setPointSize(14)
+        self.label_delta_Y.setFont(font)
+        self.label_delta_Y.setObjectName("label_delta_Y")
+
+        self.delta_Y_LCD = QtWidgets.QLCDNumber(self.DeltaWidget)
+        self.delta_Y_LCD.setGeometry(QtCore.QRect(250, 0, 100, 25))
+        self.delta_Y_LCD.setFrameShape(QtWidgets.QFrame.Box)
+        self.delta_Y_LCD.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.delta_Y_LCD.setDigitCount(10)
+        self.delta_Y_LCD.setSegmentStyle(QtWidgets.QLCDNumber.Flat)
+        self.delta_Y_LCD.setObjectName("delta_Y_LCD")
+
+        self.delta_X_button = QtWidgets.QPushButton(self.centralwidget)
+        self.delta_X_button.setGeometry(QtCore.QRect(365, 350, 60, 30))
+        self.delta_X_button.setObjectName("delta_X_button")
+        self.delta_X_button.setStyleSheet("background-color: red")
+        self.delta_X_button.setText("КУРСОР X")
+
+        self.delta_Y_button = QtWidgets.QPushButton(self.centralwidget)
+        self.delta_Y_button.setGeometry(QtCore.QRect(265, 350, 60, 30))
+        self.delta_Y_button.setObjectName("delta_Y_button")
+        self.delta_Y_button.setStyleSheet("background-color: red")
+        self.delta_Y_button.setText("КУРСОР Y")
+
         self.setpoint_line = QtWidgets.QLineEdit(self.centralwidget)
         self.setpoint_line.setGeometry(QtCore.QRect(680, 50, 50, 25))
         self.setpoint_line.setMaxLength(6)
@@ -141,7 +191,9 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "ПИД регулятор"))
+        self.label_delta_X.setText(_translate("MainWindow", "|ΔX|"))
+        self.label_delta_Y.setText(_translate("MainWindow", "|ΔY|"))
         self.input_button.setText(_translate("MainWindow", "ВВОД"))
         self.reset_button.setText(_translate("MainWindow", "СБРОС"))
         self.label_SP.setText(_translate("MainWindow", "SP"))
