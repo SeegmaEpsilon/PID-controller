@@ -16,12 +16,30 @@ class SerialThread(QtCore.QThread):
     def __init__(self, data):
         self.data = data
         QtCore.QThread.__init__(self)
-        self.port = serial.Serial('COM3', 9600)
+        try:
+            self.port = serial.Serial('COM3', 9600)
+            self.open = True
+        except:
+            self.open = False
         self.running = True
 
     def run(self):
         while self.running:
-            self.read()
+            if self.open:
+                try:
+                    self.read()
+                except:
+                    self.open = False
+                    self.message.emit('NC')
+            else:
+                try:
+                    self.port = serial.Serial('COM3', 9600)
+                    sleep(1)
+                    self.open = True
+                except:
+                    self.open = False
+                    self.message.emit('NC')
+
 
     def send(self, data):
         self.port.write(data)
@@ -99,21 +117,30 @@ class MainWindow(QMainWindow):
         self.switch_mode_button.clicked.connect(self.switch_mode)
 
     def showValues(self):
-        self.ui.meas_val.display(self.serial_th.data.split(" ")[0])
-        self.ui.err_val.display(float(self.serial_th.data.split(" ")[1]) - float(self.serial_th.data.split(" ")[0]))
+        if self.serial_th.open:
+            self.ui.meas_val.display(self.serial_th.data.split(" ")[0])
+            self.ui.err_val.display(float(self.serial_th.data.split(" ")[1]) - float(self.serial_th.data.split(" ")[0]))
+        else:
+            pass
 
     def onNewData(self):
-        self.x = np.append(self.x, self.timer.interval() * self.i)
-        try:
-            self.y = np.append(self.y, float(self.serial_th.data.split(" ")[0]))
-        except:
-            self.y = np.append(self.y, 0)
-        if len(self.x) > 100000:
-            self.x = self.x[1:]
-            self.y = self.y[1:]
-        self.curve.setData(self.x, self.y)
-        self.i += 1
-        self.line.setPos(float(self.serial_th.data.split(" ")[1]))
+        if self.serial_th.open:
+            self.x = np.append(self.x, self.timer.interval() * self.i)
+            try:
+                self.y = np.append(self.y, float(self.serial_th.data.split(" ")[0]))
+            except:
+                self.y = np.append(self.y, 0)
+            if len(self.x) > 100000:
+                self.x = self.x[1:]
+                self.y = self.y[1:]
+            self.curve.setData(self.x, self.y)
+            self.i += 1
+            try:
+                self.line.setPos(float(self.serial_th.data.split(" ")[1]))
+            except:
+                self.line.setPos(0)
+        else:
+            pass
 
     def StartStopPlot(self):
         if self.ui.start_stop_button.start:
