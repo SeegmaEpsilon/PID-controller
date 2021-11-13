@@ -1,6 +1,7 @@
 from PyQt5 import QtCore
-from PyQt5.QtCore import QIODevice, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import *
+from qtwidgets import Toggle
 from pid_controller import Ui_MainWindow
 import sys, serial
 import pyqtgraph as pg
@@ -93,7 +94,9 @@ class MainWindow(QMainWindow):
         self.ui.label_delta_Y.hide()
         self.ui.delta_X_LCD.hide()
         self.ui.delta_Y_LCD.hide()
-
+        self.switch_mode_button = Toggle(self)
+        self.switch_mode_button.setGeometry(QtCore.QRect(100, 475, 120, 80))
+        self.switch_mode_button.clicked.connect(self.switch_mode)
 
     def showValues(self):
         self.ui.meas_val.display(self.serial_th.data.split(" ")[0])
@@ -195,6 +198,19 @@ class MainWindow(QMainWindow):
     def switch_mode(self):
         self.x = np.array([])
         self.y = np.array([])
+        if self.switch_mode_button.handle_position:
+            self.serial_th.send(f'm{self.switch_mode_button.handle_position}'.encode('utf-8'))
+            self.serial_th.send(f's50'.encode('utf-8'))
+            self.serial_th.send(f'p1'.encode('utf-8'))
+            self.serial_th.send(f'i1'.encode('utf-8'))
+            self.serial_th.send(f'd1'.encode('utf-8'))
+        else:
+            self.mode = 0
+            self.serial_th.send(f'm{self.switch_mode_button.handle_position}'.encode('utf-8'))
+            self.serial_th.send(f's4250'.encode('utf-8'))
+            self.serial_th.send(f'p1'.encode('utf-8'))
+            self.serial_th.send(f'i1'.encode('utf-8'))
+            self.serial_th.send(f'd1'.encode('utf-8'))
 
 
 
