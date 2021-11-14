@@ -23,6 +23,7 @@ class SerialThread(QtCore.QThread):
             self.open = False
         self.running = True
 
+
     def run(self):
         while self.running:
             if self.open:
@@ -47,6 +48,7 @@ class SerialThread(QtCore.QThread):
     def read(self):
         self.data = self.port.readline().decode().strip('\r\n')
         self.message.emit(str(self.data))
+        print(str(self.data))
 
 
 class MainWindow(QMainWindow):
@@ -66,6 +68,7 @@ class MainWindow(QMainWindow):
         self.ui.start_stop_button.setText("ЗАП.")
         self.ui.start_stop_button.clicked.connect(self.StartStopPlot)
         self.ui.input_button.clicked.connect(self.SendData)
+        self.ui.reset_button.clicked.connect(self.reset_value)
         self.serial_th.start()
         sleep(2)
 
@@ -116,6 +119,12 @@ class MainWindow(QMainWindow):
         self.switch_mode_button.setGeometry(QtCore.QRect(100, 475, 120, 80))
         self.switch_mode_button.clicked.connect(self.switch_mode)
 
+        self.ui.setpoint_line.setText('4250')
+        self.ui.P_edit.setText('0.15')
+        self.ui.I_edit.setText('0.1')
+        self.ui.D_edit.setText('0.02')
+        self.mode = 0
+
     def showValues(self):
         if self.serial_th.open:
             self.ui.meas_val.display(self.serial_th.data.split(" ")[0])
@@ -155,6 +164,7 @@ class MainWindow(QMainWindow):
             self.ui.start_stop_button.setStyleSheet("background-color: green")
             self.ui.start_stop_button.setText("ЗАП.")
             self.timer.start()
+
 
     def SendData(self):
         sp = self.ui.setpoint_line.text()
@@ -223,22 +233,50 @@ class MainWindow(QMainWindow):
 
 
     def switch_mode(self):
-        self.x = np.array([])
-        self.y = np.array([])
         if self.switch_mode_button.handle_position:
             self.serial_th.send(f'm{self.switch_mode_button.handle_position}'.encode('utf-8'))
             self.serial_th.send(f's50'.encode('utf-8'))
             self.serial_th.send(f'p1'.encode('utf-8'))
             self.serial_th.send(f'i1'.encode('utf-8'))
             self.serial_th.send(f'd1'.encode('utf-8'))
+            self.ui.setpoint_line.setText('50')
+            self.ui.P_edit.setText('1')
+            self.ui.I_edit.setText('1')
+            self.ui.D_edit.setText('1')
         else:
             self.mode = 0
             self.serial_th.send(f'm{self.switch_mode_button.handle_position}'.encode('utf-8'))
             self.serial_th.send(f's4250'.encode('utf-8'))
+            self.serial_th.send(f'p0.15'.encode('utf-8'))
+            self.serial_th.send(f'i0.1'.encode('utf-8'))
+            self.serial_th.send(f'd0.02'.encode('utf-8'))
+            self.ui.setpoint_line.setText('4250')
+            self.ui.P_edit.setText('0.15')
+            self.ui.I_edit.setText('0.1')
+            self.ui.D_edit.setText('0.02')
+        sleep(0.1)
+        self.x = np.array([])
+        self.y = np.array([])
+
+    def reset_value(self):
+        if self.switch_mode_button.handle_position == 0:
+            self.serial_th.send(f's4250'.encode('utf-8'))
+            self.serial_th.send(f'p0.15'.encode('utf-8'))
+            self.serial_th.send(f'i0.1'.encode('utf-8'))
+            self.serial_th.send(f'd0.02'.encode('utf-8'))
+            self.ui.setpoint_line.setText('4250')
+            self.ui.P_edit.setText('0.15')
+            self.ui.I_edit.setText('0.1')
+            self.ui.D_edit.setText('0.02')
+        elif self.switch_mode_button.handle_position == 1:
+            self.serial_th.send(f's50'.encode('utf-8'))
             self.serial_th.send(f'p1'.encode('utf-8'))
             self.serial_th.send(f'i1'.encode('utf-8'))
             self.serial_th.send(f'd1'.encode('utf-8'))
-
+            self.ui.setpoint_line.setText('50')
+            self.ui.P_edit.setText('1')
+            self.ui.I_edit.setText('1')
+            self.ui.D_edit.setText('1')
 
 
 if __name__ == "__main__":
